@@ -137,7 +137,7 @@ void main_menu() {
 //TODO : implement the game lol
 //TODO : implement a high score method
 //TODO : implement a first time start up menu
-//TODO : implemnt different themes
+//TODO : implement different themes
 //TODO : implement menu options
 
 int main() {
