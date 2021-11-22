@@ -1,23 +1,29 @@
 #include <iostream>
-#include <stdlib.h>
-#include <conio.h>
-
-#if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
-#include <Windows.h>
-#elif defined(__linux__)
-#include <sys/ioctl.h>
-#endif // Windows/Linux
-
-#include <thread>
+#include <cmath>
+#include <chrono>
 
 using namespace std;
 
 char numere[10] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+char taste_orig[29] = { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '\n', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', '\n', ' ' ,'z', 'x', 'c', 'v', 'b', 'n', 'm' };
 char taste[29] = { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '\n', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', '\n', ' ' ,'z', 'x', 'c', 'v', 'b', 'n', 'm' };
-char pressed;
 
+int points = 0;
+
+char selected_keys[100];
+
+void reset_keys(){
+    for(int i = 0; i<=29; i++) taste[i] = taste_orig[i];
+    for(int i = 0; i<=29; i++) selected_keys[i] = ' ';
+}
+
+void random_keys(){
+    for(int i = 0; i<=29; i++) selected_keys[i] = ' ';
+    int b = 0;
+    int a = rand() % 9 + 1;
+    taste[a] = toupper(taste[a]);
+    selected_keys[b++] = toupper(taste[a]);
+}
 
 void draw_keyboard(char numere[], char taste[]) {
     system("cls");
@@ -28,123 +34,43 @@ void draw_keyboard(char numere[], char taste[]) {
     for (int i = 0; i < 29; i++) {
         cout << taste[i] << " ";
     }
+    cout << endl << endl << "Points : " << points << endl;
 }
 
-void get_console_size(int& width, int& height) {
-#if defined(_WIN32)
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-    width = (int)(csbi.srWindow.Right - csbi.srWindow.Left + 1);
-    height = (int)(csbi.srWindow.Bottom - csbi.srWindow.Top + 1);
-#elif defined(__linux__)
-    struct winsize w;
-    ioctl(fileno(stdout), TIOCGWINSZ, &w);
-    width = (int)(w.ws_col);
-    height = (int)(w.ws_row);
-#endif // Windows/Linux
-}
-
-void print_main_menu() {
-    int w, h;
-    get_console_size(w, h);
-    cout << R"(
- _    _   _____   _       _____   _____   __  __   _____ 
-| |  | | |  ___| | |     /  __ \ |  _  | |  \/  | |  ___|
-| |  | | | |__   | |     | /  \/ | | | | | .  . | | |__  
-| |/\| | |  __|  | |     | |     | | | | | |\/| | |  __| 
-\  /\  / | |___  | |____ | \__/\ \ \_/ / | |  | | | |___ 
- \/  \/  \____/  \_____/  \____/  \___/  \_|  |_/ \____/)" << '\n';
-    cout << R"(
- _____   _____
-|_   _| |  _  |
-  | |   | | | |
-  | |   | | | |
-  | |   \ \_/ /
-  \_/    \___/
-
-    )" << '\n';
-    system("Color E0");
-    cout << R"(
- _   __  _____  __   __  _____    ___    __  __   _____
-| | / / |  ___| \ \ / / |  __ \  / _ \  |  \/  | |  ___|
-| |/ /  | |__    \ V /  | |  \/ / /_\ \ | .  . | | |__
-|    \  |  __|    \ /   | | __  |  _  | | |\/| | |  __|
-| |\  \ | |___    | |   | |_\ \ | | | | | |  | | | |___
-\_| \_/ \____/    \_/    \____/ \_| |_/ \_|  |_/ \____/  
-
-    )" << '\n';
-    system("Color 0A");
-    cout << "Press Up to continue..." << endl << "Press Left to show the tutorial..." << endl << "Press Right to begin..." << endl << "Press Down to exit...";
-}
-
-void get_key_press() {
-    char key = 127;
-    while (true) {
-        key = _getch();
-        pressed = key;
-        if (key == 0 || key == -32) {
-            //get a special key
-            key = _getch();
-            if (key == 72) {
-                pressed = 'u';
-                //up arrow
+void game(){
+    char input;
+    while(true){
+        reset_keys();
+        random_keys();
+        draw_keyboard(numere, taste);
+        chrono::steady_clock::time_point limit = chrono::steady_clock::now() + chrono::seconds(3);
+        while(chrono::steady_clock::now() < limit){
+            cout << "Input : ";
+            cin >> input;
+            if(chrono::steady_clock::now() > limit){
+                cout << "Time limit exceeded!" << endl;
+                _sleep(300);
+                points--;
+                break;
             }
-            else if (key == 75) {
-                pressed = 'l';
-                //left arrow
+            if(find(taste, taste + 29, toupper(input)) != taste + 29){
+                cout << "Right! Added 2 points!" << endl;
+                _sleep(300);
+                points += 2;
+                break;
             }
-            else if (key == 77) {
-                pressed = 'r';
-                //right
-            }
-            else if (key == 80) {
-                pressed = 'd';
-                //down
+            else {
+                cout << "Wrong answer! Removed 1 point!" << endl;
+                _sleep(300);
+                points--;
+                break;
             }
         }
     }
 }
 
-void main_menu() {
-    switch (pressed) {
-    case 'u':
-        system("cls");
-        cout << "up";
-        pressed = ' ';
-        break;
-    case 'd':
-        system("cls");
-        cout << "down";
-        pressed = ' ';
-        break;
-    case 'l':
-        system("cls");
-        cout << "Left";
-        pressed = ' ';
-        break;
-    case 'r':
-        system("cls");
-        cout << "right";
-        pressed = ' ';
-        break;
-    case 'f':
-        system("cls");
-        cout << "f";
-        break;
-    }
-}
 
-//TODO : implement the game lol
-//TODO : implement a high score method
-//TODO : implement a first time start up menu
-//TODO : implement different themes
-//TODO : implement menu options
-
-int main() {
-    thread handle_keys(get_key_press);
-    print_main_menu();
-    while (true) {
-        main_menu();
-    }
+int main(){
+    game();
     return 0;
 }
