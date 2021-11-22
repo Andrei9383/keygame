@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cmath>
 #include <chrono>
+#include <string>
+#include <Windows.h>
 
 using namespace std;
 
@@ -69,8 +71,46 @@ void game(){
     }
 }
 
+void print_main_menu(){
+        cout << R"(
+    _    _   _____   _       _____   _____   __  __   _____
+    | |  | | |  ___| | |     /  __ \ |  _  | |  \/  | |  ___|
+    | |  | | | |__   | |     | /  \/ | | | | | .  . | | |__
+    | |/\| | |  __|  | |     | |     | | | | | |\/| | |  __|
+    \  /\  / | |___  | |____ | \__/\ \ \_/ / | |  | | | |___
+    \/  \/  \____/  \_____/  \____/  \___/  \_|  |_/ \____/)" << '\n';
+        cout << R"(
+    _____   _____
+    |_   _| |  _  |
+    | |   | | | |
+    | |   | | | |
+    | |   \ \_/ /
+    \_/    \___/
+
+        )" << '\n';
+        system("Color E0");
+        cout << R"(
+    _   __  _____  __   __  _____    ___    __  __   _____
+    | | / / |  ___| \ \ / / |  __ \  / _ \  |  \/  | |  ___|
+    | |/ /  | |__    \ V /  | |  \/ / /_\ \ | .  . | | |__
+    |    \  |  __|    \ /   | | __  |  _  | | |\/| | |  __|
+    | |\  \ | |___    | |   | |_\ \ | | | | | |  | | | |___
+    \_| \_/ \____/    \_/    \____/ \_| |_/ \_|  |_/ \____/
+
+        )" << '\n';
+}
 
 int main(){
+    chrono::steady_clock::time_point begin = chrono::steady_clock::now()+ chrono::seconds(5);
+    print_main_menu();
+    cout << endl;
+    int counter = 5;
+    Sleep(1000);
+    while(counter >= 1){
+        cout << "\rThe game will start in " << counter << flush;
+        Sleep(1000);
+        counter--;
+    }
     game();
     return 0;
 }
